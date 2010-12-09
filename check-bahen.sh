@@ -5,7 +5,9 @@
 # Zeeshan Qureshi
 
 cdf_login='g0zee'
+pid_list=''
 
+echo $'Starting Lab Check...\n'
 for lab in 2210:28 2220:24 2240:12 3175:18 3185:24 3195:18
 do
   for station in $(eval echo "{1..${lab##*:}}")
@@ -22,5 +24,9 @@ do
     fi
     "
     eval ${command} &
+    pid_list+=$!' '
   done
 done
+
+wait ${pid_list}
+echo $'\nLab Check Done!!'
