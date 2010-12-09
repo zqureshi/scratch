@@ -28,13 +28,34 @@ function poll_machine {
   fi
 }
 
+case "${1:0:1}" in
+  l)
+    ;;
+
+  p)      
+    ;;
+
+  *)
+    echo "usage: ${0} {polling mechanism}"
+    echo "polling mechanisms: linear, parallel"
+    exit
+esac
+
 echo $'Starting Lab Check...\n'
 for lab in 2210:28 2220:24 2240:12 3175:18 3185:24 3195:18
 do
   for station in $(eval echo "{1..${lab##*:}}")
   do
-    poll_machine ${lab} ${station} &
-    pid_list+=$!' '
+    case "${1:0:1}" in
+      l)
+        poll_machine ${lab} ${station}
+        ;;
+
+      p)      
+        poll_machine ${lab} ${station} &
+        pid_list+=$!' '
+        ;;
+    esac
   done
 done
 
