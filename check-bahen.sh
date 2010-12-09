@@ -7,23 +7,33 @@
 cdf_login='g0zee'
 pid_list=''
 
+function poll_machine {
+  # Copy over arguments
+  lab=${1}
+  station=${2}
+
+  # Generate machine name
+  printf -v machine "b%s-%#02d" ${lab%:*} ${station}
+
+  # Poll the machine
+  output=$(ssh -qq ${cdf_login}@b${lab%:*}-${station}.cdf.toronto.edu users)
+  ssh_exit_code=${?}
+
+  # If exited successfuly, then print users
+  if [ "${ssh_exit_code}" -eq "0" ]
+  then
+    echo "${machine}: ${output}"
+  else
+    echo "${machine}: down.."
+  fi
+}
+
 echo $'Starting Lab Check...\n'
 for lab in 2210:28 2220:24 2240:12 3175:18 3185:24 3195:18
 do
   for station in $(eval echo "{1..${lab##*:}}")
   do
-    command="
-    printf -v machine \"b%s-%#02d\" ${lab%:*} ${station};
-    output=\$(ssh -qq ${cdf_login}@b${lab%:*}-${station}.cdf.toronto.edu users);
-    ssh_exit_code=\$?;
-    if [ \"\${ssh_exit_code}\" -eq \"0\" ];
-    then
-      echo \"\${machine}: \${output}\";
-    else
-      echo \"\${machine}: down..\";
-    fi
-    "
-    eval ${command} &
+    poll_machine ${lab} ${station} &
     pid_list+=$!' '
   done
 done
