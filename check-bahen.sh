@@ -16,7 +16,7 @@ function poll_machine {
   printf -v machine "b%s-%#02d" ${lab%:*} ${station}
 
   # Poll the machine
-  output=$(ssh -qq ${cdf_login}@b${lab%:*}-${station}.cdf.toronto.edu users)
+  output=$(ssh -qq ${cdf_login}@${machine}.cdf.toronto.edu users)
   ssh_exit_code=${?}
 
   # If exited successfuly, then print users
